@@ -2,12 +2,12 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# 必要なパッケージをインストール
+# 依存関係のインストールを先に行う
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # アプリケーションコードをコピー
-COPY app.py .
+COPY . .
 
 # streamlitのデフォルトポートを公開
 EXPOSE 8501
