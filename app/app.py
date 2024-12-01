@@ -1,5 +1,6 @@
 import requests
 import streamlit as st
+from llm import python_code_llm
 
 
 def run_sandbox_code(language: str, code: str, enable_network: bool = False) -> dict:
@@ -42,33 +43,35 @@ language = st.selectbox(
 )
 
 # コード入力エリア
-code = st.text_area(
-    "コードを入力してください",
-    height=200,
-    value="""def main() -> dict:
-    return {
-        "hello": "world"
-    }
+input = st.text_area("実行したい内容を入力してください", height=200)
 
-print(main())""",
-)
-
-# ネットワークアクセス設定
-enable_network = st.checkbox("ネットワークアクセスを許可")
+output = python_code_llm.invoke({"input": input})
 
 # 実行ボタン
-if st.button("実行"):
-    with st.spinner("コードを実行中..."):
-        result = run_sandbox_code(language, code, enable_network)
+if st.button("コード生成"):
+    # 生成されたコードを保存
+    st.session_state.generated_code = output.code
+    st.session_state.show_code = True
 
-        # 結果の表示
-        st.subheader("実行結果:")
-        if "error" in result:
-            st.error(f"エラーが発生しました: {result['error']}")
-        else:
-            # APIレスポンスの構造に合わせて修正
-            if result.get("data"):
-                if result["data"].get("stdout"):
-                    st.code(result["data"]["stdout"])
-                if result["data"].get("error"):
-                    st.error(result["data"]["error"])
+# 生成されたコードがある場合は常に表示
+if "show_code" in st.session_state and st.session_state.show_code:
+    st.subheader("生成されたコード:")
+    st.code(st.session_state.generated_code)
+
+    # 実行ボタン
+    if st.button("実行する"):
+        with st.spinner("コードを実行中..."):
+            result = run_sandbox_code(
+                language, st.session_state.generated_code, enable_network=True
+            )
+
+            # 結果の表示
+            st.subheader("実行結果:")
+            if "error" in result:
+                st.error(f"エラーが発生しました: {result['error']}")
+            else:
+                if result.get("data"):
+                    if result["data"].get("stdout"):
+                        st.code(result["data"]["stdout"])
+                    if result["data"].get("error"):
+                        st.error(result["data"]["error"])
