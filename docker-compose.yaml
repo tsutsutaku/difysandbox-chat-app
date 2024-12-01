@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  streamlit-app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    networks:
+      - dify-network
+    environment:
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_SERVER_PORT=8501
+    command: streamlit run app.py --server.address=0.0.0.0 --server.port=8501
+
+  dify-sandbox:
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile
+    ports:
+      - "8194:8194"
+    networks:
+      - dify-network
+    environment:
+      - ALLOWED_SYSCALLS=${SANDBOX_ALLOWED_SYSCALLS}
+
+networks:
+  dify-network:
+    driver: bridge
