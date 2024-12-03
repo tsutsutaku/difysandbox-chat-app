@@ -1,3 +1,6 @@
 streamlit
 langchain-core
 langchain-openai
+langchain-community
+langgraph
+pydantic
