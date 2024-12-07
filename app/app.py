@@ -1,3 +1,5 @@
+import json
+
 import streamlit as st
 from langchain_core.messages import ToolMessage
 from llm import agent_executor
@@ -27,14 +29,16 @@ if prompt := st.chat_input("What is up?"):
         )
         if isinstance(response["messages"][-2], ToolMessage):
             tool_content = response["messages"][-2].content
-            st.markdown(tool_content)
-            # ToolMessageも履歴に保存
-            st.session_state.messages.append(
-                {"role": "assistant", "content": tool_content}
+            code = json.loads(tool_content)["code"]
+            result = json.loads(tool_content).get(
+                "result", json.loads(tool_content).get("error")
             )
 
-        final_content = response["messages"][-1].content
-        st.markdown(final_content)
+        content = response["messages"][-1].content
+        display_content = (
+            f"#### コード\n```python\n{code}\n```\n\n#### 結果\n{result}\n\n{content}"
+        )
+        st.markdown(display_content)
         st.session_state.messages.append(
-            {"role": "assistant", "content": final_content}
+            {"role": "assistant", "content": display_content}
         )
