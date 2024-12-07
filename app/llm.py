@@ -14,6 +14,7 @@ Your output will be executed directly as Python code, so please ensure there are
 
 You can use the following libraries:
 - numpy
+- pandas
 - duckduckgo-search
 example:
 ```python
